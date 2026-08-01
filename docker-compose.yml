@@ -1,0 +1,16 @@
+version: "3.8"
+
+services:
+  agent-ebpf-daemon:
+    image: ghcr.io/agent-ebpf/daemon:latest
+    container_name: agent_ebpf_shield
+    network_mode: "host"
+    privileged: true
+    cap_add:
+      - SYS_ADMIN
+      - BPF
+      - NET_ADMIN
+    volumes:
+      - /sys/fs/bpf:/sys/fs/bpf
+      - ./policy.yaml:/etc/agent-ebpf/policy.yaml:ro
+    restart: always

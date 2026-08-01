@@ -1,0 +1,17 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+venv/
+.venv/
+
+# eBPF / C compilation artifacts
+*.o
+*.skel.h
+vmlinux.h
+
+# Environment & IDE
+.env
+.vscode/
+.idea/

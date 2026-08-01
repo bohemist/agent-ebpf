@@ -1,0 +1,37 @@
+version: "v1alpha"
+metadata:
+  name: "production-agent-shield"
+
+rules:
+  # 1. Tahrip Edici SQL Sorgularını Engelle (WHERE'siz UPDATE/DELETE)
+  - id: "sql-no-where-mutation"
+    type: "db_query"
+    protocol: "postgres" # veya mysql
+    severity: "critical"
+    action: "DROP"
+    match:
+      pattern: '(?i)^(UPDATE|DELETE)\s+((?!WHERE).)*$'
+    message: "WHERE koşulu içermeyen yıkıcı SQL mutasyonu engellendi."
+
+  # 2. Multi-Tenant Izolasyon Zorunluluğu
+  - id: "tenant-isolation-enforce"
+    type: "db_query"
+    protocol: "postgres"
+    severity: "high"
+    action: "DROP"
+    match:
+      require_header_context: "X-Tenant-ID"
+      must_contain: "tenant_id ="
+    message: "Sorguda tenant_id filtrelemesi eksik."
+
+  # 3. Yasaklı Sistem Çağrıları (Process Hijack Önleme)
+  - id: "block-unsafe-syscalls"
+    type: "syscall"
+    severity: "critical"
+    action: "KILL_PROCESS"
+    match:
+      syscalls:
+        - "execve"
+        - "ptrace"
+      binary_path_regex: ".*/python.*"
+    message: "Ajanın sistem üzerinde yetkisiz alt süreç (sub-process) başlatması engellendi."
